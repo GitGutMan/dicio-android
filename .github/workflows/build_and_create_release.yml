@@ -69,14 +69,11 @@ jobs:
 
       - name: Sign APKs
         env:
-          KEYSTORE_BASE64: ${{ secrets.SIGNING_KEYSTORE_BASE64 }}
-          KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
-          KEYSTORE_PASSWORD: ${{ secrets.SIGNING_KEYSTORE_PASSWORD }}
-          VERSION: ${{ env.VERSION }}
-          APKSIGNER: ${{ env.APKSIGNER }}
-        run: |
-          openssl base64 -A -d -out keystore.jks <<< "$KEYSTORE_BASE64"
-          "$APKSIGNER" sign --ks ./keystore.jks --ks-key-alias "$KEY_ALIAS" --ks-pass "pass:$KEYSTORE_PASSWORD" "./apks/Dicio_${VERSION}.apk"
+       VERSION: ${{ env.VERSION }}
+       APKSIGNER: ${{ env.APKSIGNER }}
+     run: |
+       keytool -genkeypair -keystore keystore.jks -keyalg RSA -keysize 2048 -validity 10000 -alias dicio -storepass android -keypass android -dname "CN=Dicio"
+       "$APKSIGNER" sign --ks ./keystore.jks --ks-key-alias dicio --ks-pass pass:android --key-pass pass:android "./apks/Dicio_${VERSION}.apk"
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v6
